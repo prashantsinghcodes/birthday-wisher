@@ -22,7 +22,7 @@ public class DailyBirthdayScheduler {
 	@Autowired
 	BirthdayEmailServiceImpl birthdayEmailServiceImpl;
 	
-	@Scheduled(cron = "0 16 23 * * ?")
+	@Scheduled(cron = "0 36 00 * * ?")
 	public void dailyBirthdayChecker() {
 		List<Birthday> birthdays = excelReaderService.excelReader();
 		List<Birthday> todayBirthdays = new ArrayList<>();
@@ -35,7 +35,8 @@ public class DailyBirthdayScheduler {
 			}
 		});
 		todayBirthdays.forEach(birthday -> {
-			sendBirthdayWish(birthday);
+			Thread thread = new Thread(() -> sendBirthdayWish(birthday));
+			thread.start();
 		});
 	}
 	

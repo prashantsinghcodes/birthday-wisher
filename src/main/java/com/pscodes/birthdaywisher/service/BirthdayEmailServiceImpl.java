@@ -27,7 +27,7 @@ public class BirthdayEmailServiceImpl implements BirthdayEmailService {
 			simpleMailMessage.setText(birthdayEmailDetails.getBody());
 			simpleMailMessage.setSubject(birthdayEmailDetails.getSubject());
 			javaMailSender.send(simpleMailMessage);
-			System.out.print("Mail sent successfully!");
+			System.out.println("Mail sent successfully!");
 		} catch (Exception e) {
 			// TODO: handle exception
 			System.out.print(e.getLocalizedMessage());
