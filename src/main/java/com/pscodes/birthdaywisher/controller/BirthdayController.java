@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pscodes.birthdaywisher.model.Birthday;
+import com.pscodes.birthdaywisher.scheduler.DailyBirthdayScheduler;
 import com.pscodes.birthdaywisher.service.ExcelReaderService;
 
 @RestController
@@ -15,11 +16,10 @@ import com.pscodes.birthdaywisher.service.ExcelReaderService;
 public class BirthdayController {
 
 	@Autowired
-	private ExcelReaderService readerService;
+	private DailyBirthdayScheduler dailyBirthdayScheduler;
 
 	@GetMapping("/extract")
 	public void getBirthdayList() {
-		List<Birthday> birthdays = readerService.excelReader();
-		System.out.print(birthdays.toString());
+		dailyBirthdayScheduler.dailyBirthdayChecker();
 	}
 }
