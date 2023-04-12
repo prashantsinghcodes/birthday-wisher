@@ -22,7 +22,7 @@ public class DailyBirthdayScheduler {
 	@Autowired
 	BirthdayEmailServiceImpl birthdayEmailServiceImpl;
 	
-	@Scheduled(cron = "0 36 00 * * ?")
+	@Scheduled(cron = "0 21 23 * * ?")
 	public void dailyBirthdayChecker() {
 		List<Birthday> birthdays = excelReaderService.excelReader();
 		List<Birthday> todayBirthdays = new ArrayList<>();
@@ -45,6 +45,7 @@ public class DailyBirthdayScheduler {
 		birthdayEmailDetails.setTo(birthday.getEmail());
 		birthdayEmailDetails.setSubject("Happy Birthday, " + birthday.getName().split(" ")[0]);
 		birthdayEmailDetails.setBody("Wish you a very happy birthday to you!");
-		birthdayEmailServiceImpl.sendSimpleBirthdayEmail(birthdayEmailDetails);
+		//birthdayEmailServiceImpl.sendSimpleBirthdayEmail(birthdayEmailDetails);
+		birthdayEmailServiceImpl.sendBirthdayEmailWithAttachment(birthdayEmailDetails);
 	}
 }

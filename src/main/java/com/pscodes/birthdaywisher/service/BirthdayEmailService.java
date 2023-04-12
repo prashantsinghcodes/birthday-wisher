@@ -6,6 +6,6 @@ public interface BirthdayEmailService {
 	
 	void sendSimpleBirthdayEmail(BirthdayEmailDetails birthdayEmailDetails);
 	
-	String sendBirthdayEmailWithAttachment(BirthdayEmailDetails birthdayEmailDetails);
+	void sendBirthdayEmailWithAttachment(BirthdayEmailDetails birthdayEmailDetails);
 	
 }

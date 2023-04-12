@@ -1,12 +1,18 @@
 package com.pscodes.birthdaywisher.service;
 
+import java.io.File;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.pscodes.birthdaywisher.model.BirthdayEmailDetails;
+
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class BirthdayEmailServiceImpl implements BirthdayEmailService {
@@ -16,6 +22,9 @@ public class BirthdayEmailServiceImpl implements BirthdayEmailService {
 	
 	@Value("${spring.mail.username}")
 	private String sender;
+	
+	@Value("${image.location}")
+	private String imageLocation;
 	
 	@Override
 	public void sendSimpleBirthdayEmail(BirthdayEmailDetails birthdayEmailDetails) {
@@ -36,9 +45,22 @@ public class BirthdayEmailServiceImpl implements BirthdayEmailService {
 	}
 
 	@Override
-	public String sendBirthdayEmailWithAttachment(BirthdayEmailDetails birthdayEmailDetails) {
+	public void sendBirthdayEmailWithAttachment(BirthdayEmailDetails birthdayEmailDetails) {
 		// TODO Auto-generated method stub
-		return null;
+		try {
+			MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+			mimeMessageHelper.setTo(birthdayEmailDetails.getTo());
+			mimeMessageHelper.setFrom(sender);
+			mimeMessageHelper.setSubject(birthdayEmailDetails.getSubject());
+			mimeMessageHelper.setText(birthdayEmailDetails.getBody());
+			FileSystemResource file = new FileSystemResource(new File(imageLocation));
+			mimeMessageHelper.addAttachment("HappyBirthday.jpg", file);
+			javaMailSender.send(mimeMessage);
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.print("Error occurred : " + e.getLocalizedMessage());
+		}
 	}
 
 }
