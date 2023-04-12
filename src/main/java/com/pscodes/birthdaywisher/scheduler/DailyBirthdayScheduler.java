@@ -1,6 +1,7 @@
 package com.pscodes.birthdaywisher.scheduler;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class DailyBirthdayScheduler {
 	@Autowired
 	BirthdayEmailServiceImpl birthdayEmailServiceImpl;
 	
-	@Scheduled(cron = "0 21 23 * * ?")
+	@Scheduled(cron = "0 33 00 * * ?")
 	public void dailyBirthdayChecker() {
 		List<Birthday> birthdays = excelReaderService.excelReader();
 		List<Birthday> todayBirthdays = new ArrayList<>();
@@ -35,17 +36,35 @@ public class DailyBirthdayScheduler {
 			}
 		});
 		todayBirthdays.forEach(birthday -> {
-			Thread thread = new Thread(() -> sendBirthdayWish(birthday));
+			Thread thread = new Thread(() -> sendBirthdayWish(birthday, true));
 			thread.start();
 		});
 	}
 	
-	private void sendBirthdayWish(Birthday birthday) {
+	private void sendBirthdayWish(Birthday birthday, boolean isHtml) {
+		Period period = Period.between(birthday.getDob(), LocalDate.now());
 		BirthdayEmailDetails birthdayEmailDetails = new BirthdayEmailDetails();
 		birthdayEmailDetails.setTo(birthday.getEmail());
 		birthdayEmailDetails.setSubject("Happy Birthday, " + birthday.getName().split(" ")[0]);
-		birthdayEmailDetails.setBody("Wish you a very happy birthday to you!");
+		String body = !isHtml ? "Wish you a very happy birthday to you!" : "<!DOCTYPE html>\r\n"
+				+ "<html>\r\n"
+				+ "<head>\r\n"
+				+ " <title>Happy Birthday</title>\r\n"
+				+ " <meta charset=\"utf-8\" />\r\n"
+				+ "</head>\r\n"
+				+ "<body>\r\n"
+				+ " <div id=\"birthdayCard\">\r\n"
+				+ "  <h1>Happy Birthday, <span class=\"redText\">" + birthday.getName().split(" ")[0] + "</span>!</h1>\r\n"
+				+ "  <p>You are <span class=\"redText\">" + period.getYears() + "</span> years old now.</p>\r\n"
+				+ "  <p>I sincerely wish you <strong>success</strong> and <strong>happiness</strong> in your future life.</p>\r\n"
+				+ "  <p>You're a great person!</p>\r\n"
+				+ "  <p class=\"signature\">–Your friend, Ankit</p>\r\n"
+				+ " </div>\r\n"
+				+ "</body>\r\n"
+				+ "</html>";
+		birthdayEmailDetails.setBody(body);
 		//birthdayEmailServiceImpl.sendSimpleBirthdayEmail(birthdayEmailDetails);
-		birthdayEmailServiceImpl.sendBirthdayEmailWithAttachment(birthdayEmailDetails);
+		//birthdayEmailServiceImpl.sendBirthdayEmailWithAttachment(birthdayEmailDetails);
+		birthdayEmailServiceImpl.sendBirthdayEmailWithHtml(birthdayEmailDetails);
 	}
 }

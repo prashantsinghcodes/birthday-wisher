@@ -8,4 +8,5 @@ public interface BirthdayEmailService {
 	
 	void sendBirthdayEmailWithAttachment(BirthdayEmailDetails birthdayEmailDetails);
 	
+	void sendBirthdayEmailWithHtml(BirthdayEmailDetails birthdayEmailDetails);
 }

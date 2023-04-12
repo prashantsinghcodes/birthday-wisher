@@ -63,4 +63,22 @@ public class BirthdayEmailServiceImpl implements BirthdayEmailService {
 		}
 	}
 
+	@Override
+	public void sendBirthdayEmailWithHtml(BirthdayEmailDetails birthdayEmailDetails) {
+		// TODO Auto-generated method stub
+		try {
+			MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+			//mimeMessage.setContent(htmlMsg, "text/html"); /** Use this or below line **/
+			helper.setText(birthdayEmailDetails.getBody(), true); // Use this or above line.
+			helper.setTo(birthdayEmailDetails.getTo());
+			helper.setSubject(birthdayEmailDetails.getSubject());
+			helper.setFrom(sender);
+			javaMailSender.send(mimeMessage);
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.print("Error occurred : " + e.getLocalizedMessage());
+		}
+	}
+
 }
