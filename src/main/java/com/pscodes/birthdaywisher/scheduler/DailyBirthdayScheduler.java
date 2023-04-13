@@ -5,6 +5,8 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,8 @@ import com.pscodes.birthdaywisher.service.ExcelReaderService;
 
 @Component
 public class DailyBirthdayScheduler {
+	
+	private static Logger logger = LogManager.getLogger(DailyBirthdayScheduler.class);
 
 	@Autowired
 	ExcelReaderService excelReaderService;
@@ -23,22 +27,26 @@ public class DailyBirthdayScheduler {
 	@Autowired
 	BirthdayEmailServiceImpl birthdayEmailServiceImpl;
 	
-	@Scheduled(cron = "0 33 00 * * ?")
+	@Scheduled(cron = "${cron.expression}")
 	public void dailyBirthdayChecker() {
-		List<Birthday> birthdays = excelReaderService.excelReader();
-		List<Birthday> todayBirthdays = new ArrayList<>();
-		birthdays.forEach(birthday -> {
-			LocalDate dob = birthday.getDob();
-			LocalDate today = LocalDate.now();
-			if (dob.getMonthValue() == today.getMonthValue() 
-					&& dob.getDayOfMonth() == today.getDayOfMonth()) {
-				todayBirthdays.add(birthday);
-			}
-		});
-		todayBirthdays.forEach(birthday -> {
-			Thread thread = new Thread(() -> sendBirthdayWish(birthday, true));
-			thread.start();
-		});
+		try {
+			List<Birthday> birthdays = excelReaderService.excelReader();
+			List<Birthday> todayBirthdays = new ArrayList<>();
+			birthdays.forEach(birthday -> {
+				LocalDate dob = birthday.getDob();
+				LocalDate today = LocalDate.now();
+				if (dob.getMonthValue() == today.getMonthValue() 
+						&& dob.getDayOfMonth() == today.getDayOfMonth()) {
+					todayBirthdays.add(birthday);
+				}
+			});
+			todayBirthdays.forEach(birthday -> {
+				Thread thread = new Thread(() -> sendBirthdayWish(birthday, true));
+				thread.start();
+			});
+		} catch (Exception ex) {
+			logger.info("Exception occurred : {}", ex.getMessage());
+		}
 	}
 	
 	private void sendBirthdayWish(Birthday birthday, boolean isHtml) {

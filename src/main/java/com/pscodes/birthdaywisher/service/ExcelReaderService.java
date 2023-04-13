@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -18,6 +20,8 @@ import com.pscodes.birthdaywisher.model.Birthday;
 @SuppressWarnings("deprecation")
 @Service
 public class ExcelReaderService {
+	
+	private static Logger logger = LogManager.getLogger(ExcelReaderService.class);
 	
 	@Value("${excel.location}")
 	private String excelLocation;
@@ -36,7 +40,7 @@ public class ExcelReaderService {
 				}
 			}
 		} catch (Exception e) {
-
+			logger.info("Exception occurred : {}", e.getMessage());
 		}
 		return birthDayList;
 	}
