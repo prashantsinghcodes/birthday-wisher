@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.pscodes.birthdaywisher.model.BirthdayEmailDetails;
 
-import jakarta.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMessage;
 
 @Service
 public class BirthdayEmailServiceImpl implements BirthdayEmailService {
@@ -72,6 +72,7 @@ public class BirthdayEmailServiceImpl implements BirthdayEmailService {
 			helper.setSubject(birthdayEmailDetails.getSubject());
 			helper.setFrom(sender);
 			javaMailSender.send(mimeMessage);
+			logger.info("[BirthdayEmailServiceImpl][sendBirthdayEmailWithHtml] Birthday mail sent successfully..");
 		} catch (Exception e) {
 			logger.info("Error occurred : {}", e.getMessage());
 		}

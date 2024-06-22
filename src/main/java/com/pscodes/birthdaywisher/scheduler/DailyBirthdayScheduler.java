@@ -5,6 +5,8 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pscodes.birthdaywisher.entity.BirthdayDetails;
+import com.pscodes.birthdaywisher.service.BirthdayService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Component;
 import com.pscodes.birthdaywisher.model.Birthday;
 import com.pscodes.birthdaywisher.model.BirthdayEmailDetails;
 import com.pscodes.birthdaywisher.service.BirthdayEmailServiceImpl;
-import com.pscodes.birthdaywisher.service.ExcelReaderService;
 
 @Component
 public class DailyBirthdayScheduler {
@@ -22,25 +23,16 @@ public class DailyBirthdayScheduler {
 	private static Logger logger = LogManager.getLogger(DailyBirthdayScheduler.class);
 
 	@Autowired
-	ExcelReaderService excelReaderService;
-	
+	private BirthdayService birthdayService;
+
 	@Autowired
 	BirthdayEmailServiceImpl birthdayEmailServiceImpl;
 	
 	@Scheduled(cron = "${cron.expression}")
 	public void dailyBirthdayChecker() {
 		try {
-			List<Birthday> birthdays = excelReaderService.excelReader();
-			List<Birthday> todayBirthdays = new ArrayList<>();
-			birthdays.forEach(birthday -> {
-				LocalDate dob = birthday.getDob();
-				LocalDate today = LocalDate.now();
-				if (dob.getMonthValue() == today.getMonthValue() 
-						&& dob.getDayOfMonth() == today.getDayOfMonth()) {
-					todayBirthdays.add(birthday);
-				}
-			});
-			todayBirthdays.forEach(birthday -> {
+			List<BirthdayDetails> birthdayDetailsList = birthdayService.getTodayBirthdayDetails();
+			birthdayDetailsList.forEach(birthday -> {
 				Thread thread = new Thread(() -> sendBirthdayWish(birthday, true));
 				thread.start();
 			});
@@ -49,7 +41,7 @@ public class DailyBirthdayScheduler {
 		}
 	}
 	
-	private void sendBirthdayWish(Birthday birthday, boolean isHtml) {
+	private void sendBirthdayWish(BirthdayDetails birthday, boolean isHtml) {
 		Period period = Period.between(birthday.getDob(), LocalDate.now());
 		BirthdayEmailDetails birthdayEmailDetails = new BirthdayEmailDetails();
 		birthdayEmailDetails.setTo(birthday.getEmail());
@@ -71,8 +63,6 @@ public class DailyBirthdayScheduler {
 				+ "</body>\r\n"
 				+ "</html>";
 		birthdayEmailDetails.setBody(body);
-		//birthdayEmailServiceImpl.sendSimpleBirthdayEmail(birthdayEmailDetails);
-		//birthdayEmailServiceImpl.sendBirthdayEmailWithAttachment(birthdayEmailDetails);
 		birthdayEmailServiceImpl.sendBirthdayEmailWithHtml(birthdayEmailDetails);
 	}
 }
